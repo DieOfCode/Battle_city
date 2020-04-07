@@ -3,9 +3,6 @@ import pygame
 
 pygame.init()
 
-
-
-
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (122, 0, 0)
@@ -21,19 +18,20 @@ CONST_SPEED = 1
 
 ENEMY_TYPES = ['regular', 'heavy', 'fast']
 
-DISPLAY_WIDTH = 640
+DISPLAY_WIDTH = 520
 DISPLAY_HEIGHT = 416
 FPS = 60
 
 BEST_MUSIC = pygame.mixer.Sound('sounds/DOOM.ogg')
 FIRE_SOUND = pygame.mixer.Sound('sounds/fire.ogg')
+BUTTON_MUSIC = pygame.mixer.Sound('sounds/background.ogg')
+START_SCREEN = pygame.mixer.Sound('sounds/ANewMorning.ogg')
 
 sprites = pygame.transform.scale(pygame.image.load("images/sprites.gif"), [192, 224])
 PLAYER_SPRITE = sprites.subsurface(0, 0, 26, 13 * 2)
 MISSILE = pygame.image.load('images/missile.png')
 
-# HUD = pygame.image.load('images/hud.png')
-# TOP_HUD = pygame.image.load('images/top_hud.png')
+EXPLODE = pygame.image.load('images/exp_1.png')
 BRICK = sprites.subsurface(48 * 2, 64 * 2, 8 * 2, 8 * 2)
 BUSH = sprites.subsurface(56 * 2, 72 * 2, 8 * 2, 8 * 2)
 IRON_BRICK = sprites.subsurface(48 * 2, 72 * 2, 8 * 2, 8 * 2)
@@ -46,7 +44,7 @@ TIMER = pygame.time.Clock()
 RECT_MAP = []
 
 SMALL_FONT = pygame.font.Font("fonts/prstart.ttf", 15)
-FONT = pygame.font.Font("fonts/prstart.ttf", 50)
+FONT = pygame.font.Font("fonts/prstart.ttf", 45)
 BUTTON_FONT = pygame.font.Font("fonts/prstart.ttf", 20)
 
 GAME_DISPLAY = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT),

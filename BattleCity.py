@@ -39,6 +39,7 @@ def button_click(button):
 def start_screen():
     beginning = True
     while beginning:
+        # START_SCREEN.play()
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_c:
@@ -56,6 +57,7 @@ def start_screen():
         message_to_screen("Start", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
         start_button = create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
         if button_click(start_button):
+            BUTTON_MUSIC.play()
             main_loop()
         pygame.display.update()
         TIMER.tick(FPS)
@@ -134,7 +136,8 @@ class Player(Tank):
             self.dy = 1
 
         if keys[pygame.K_SPACE] and len(self.missile) < 2:
-            self.missile.append(Missile(self.x, self.y, self.angle, self.dx, self.dy, OBJ_SIZE))
+            self.missile.append(Missile(self.x + 4, self.y + 4, self.angle, self.dx, self.dy, OBJ_SIZE))
+            FIRE_SOUND.set_volume(10)
             FIRE_SOUND.play()
 
     def bullet_operation(self):
@@ -147,6 +150,7 @@ class Player(Tank):
 
 
 def main_loop():
+    # START_SCREEN.stop()
     game_over = False
     pygame.display.set_caption("Battle city")
     main_player = Player(250, 350, 2, 0, load_level())
@@ -161,6 +165,7 @@ def main_loop():
 
         if main_player.missile:
             if not missile_collision(main_player.missile, X_OR_Y_MAP):
+                GAME_DISPLAY.blit(EXPLODE, (main_player.missile[0].x, main_player.missile[0].y))
                 main_player.missile.pop(0)
         main_player.draw(GAME_DISPLAY, PLAYER_SPRITE)
         for elements in main_player.map_game:
@@ -191,6 +196,8 @@ class Blocks(GameObject):
             game_display.blit(IRON_FLOOR, (self.x, self.y))
         elif self.block_type == 'WATER':
             game_display.blit(WATER, (self.x, self.y))
+        # elif self.block_type == 'C':
+        #     game_display.blit(WATER, (self.x, self.y))
 
 
 def load_level():
@@ -218,16 +225,35 @@ def load_level():
                 game_map.append(Blocks(x, y, 'WATER', OBJ_SIZE))
             elif char == '-':
                 game_map.append(Blocks(x, y, 'IRON_FLOOR', OBJ_SIZE))
+            elif char == 'C':
+                game_map.append(Base(x, y, OBJ_SIZE * 2, 'alive'))
             x += OBJ_SIZE
         x = 0
         y += OBJ_SIZE
     return game_map
 
 
+class Base(GameObject):
+    def __init__(self, x, y, size, state, hp=100):
+        GameObject.__init__(self, x, y, size)
+        self.state = state
+        self.kind = 'castle'
+        self.hp = hp
+
+    def draw(self, game_display):
+
+        if self.state == 'alive':
+            game_display.blit(CASTLE_IMG, (self.x, self.y))
+        if self.state == 'destroyed':
+            game_display.blit(DESTR_CASTLE, (self.x, self.y))
+
+
 def missile_collision(missile: list, rec_object):
     for elem in rec_object:
-        if elem[0] <= missile[0].x <= elem[0] + OBJ_SIZE:
-            if elem[1] <= missile[0].y <= elem[1] + OBJ_SIZE:
+        if elem[0] <= missile[0].x <= elem[0] + OBJ_SIZE \
+                or elem[0] <= missile[0].x + OBJ_SIZE <= elem[0] + OBJ_SIZE:
+            if elem[1] <= missile[0].y <= elem[1] + OBJ_SIZE or elem[1] <= missile[0].y + OBJ_SIZE <= elem[
+                1] + OBJ_SIZE:
                 return False
     return True
 

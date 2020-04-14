@@ -71,7 +71,7 @@ class GameObject():
 
 
 class Missile(GameObject):
-    def __init__(self, x, y, angle, direction_x, direction_y, size):
+    def __init__(self, x, y, angle, direction_x, direction_y, size, damage=50):
         GameObject.__init__(self, x, y, size)
         self.direction_x = direction_x
         self.direction_y = direction_y
@@ -79,6 +79,7 @@ class Missile(GameObject):
         self.speed_x = 3 * direction_x
         self.speed_y = 3 * direction_y
         self.angle = angle
+        self.damage = damage
 
     def draw(self, game_display, img):
         missile = pygame.transform.rotate(img, self.angle)
@@ -96,9 +97,9 @@ class Tank:
         self.size = size
         self.angle = 0
 
-    def draw(self, game_display, img):
+    def draw(self, game_display, img, position):
         t = pygame.transform.rotate(img, self.angle)
-        game_display.blit(t, (self.x, self.y))
+        game_display.blit(t, position)
 
 
 class Player(Tank):
@@ -110,10 +111,9 @@ class Player(Tank):
 
     def player_control(self, keys):
         my_rect = pygame.Rect(self.x - 1, self.y, 1, 26)
-        my_rect_2 = pygame.Rect(self.x + 25, self.y, 1, 26)
+        my_rect_2 = pygame.Rect(self.x + 27, self.y, 1, 26)
         my_rect_3 = pygame.Rect(self.x, self.y - 1, 26, 1)
         my_rect_4 = pygame.Rect(self.x, self.y + 26, 26, 1)
-        t = my_rect.collidelistall(RECT_MAP)
         if keys[pygame.K_LEFT] and self.x > 0 and not my_rect.collidelistall(RECT_MAP):
             self.x -= self.speed
             self.angle = 90
@@ -149,11 +149,99 @@ class Player(Tank):
                 self.missile.pop(self.missile.index(bullet))
 
 
+class Enemy(Tank):
+    def __init__(self, x, y, speed, size, map_game, kind, hp=100, image=None, missile=[]):
+        Tank.__init__(self, x, y, speed, size)
+        self.missiles = missile
+        if missile is None:
+            missile = []
+        self.missile = missile
+        self.angle = 0
+        self.missile = []
+        self.map_game = map_game
+        self.image = image
+        self.hp = hp
+        self.direction = None
+        if kind is "casual":
+            self.image = CASUAL_ENEMY
+            self.speed = 5
+        if kind is "fast":
+            self.image = FAST_ENEMY
+            self.speed = 10
+            self.hp = 50
+        if kind is "hurt":
+            self.image = POPA_BOL_ENEMY
+            self.speed = 1
+            self.hp = 200
+
+    def make_move(self, obj):
+        enemy_rect = pygame.Rect(self.x, self.y - 1, 26, 1)
+        enemy_rect_2 = pygame.Rect(self.x, self.y + 26, 26, 1)
+        enemy_rect_3 = pygame.Rect(self.x + 27, self.y, 1, 26)
+        enemy_rect_4 = pygame.Rect(self.x - 1, self.y, 1, 26)
+        if self.y > obj.y and not enemy_rect.collidelistall(RECT_MAP):
+            self.dy -= self.speed
+            self.dx = 0
+            self.direction = 0
+        if self.y < obj.y and not enemy_rect_2.collidelistall(RECT_MAP):
+            self.dy += self.speed
+            self.dx = 0
+            self.direction = 180
+        if self.x > obj.x and not enemy_rect_3.collidelistall(RECT_MAP):
+            self.dx -= self.speed
+
+            self.dy = 0
+            self.direction = 90
+        if self.x < obj.x and not enemy_rect_4.collidelistall(RECT_MAP):
+            self.dx += self.speed
+            self.dy = 0
+            self.direction = 270
+
+    #
+    # def shoot(self, enemy, direction):
+    #     """Updates bullets' positions
+    #     And makes a bullet, if the enemy is nearby
+    #     """
+    #     for bullet in self.missiles:
+    #         if bullet.x > 0 and bullet.y > 0:
+    #             bullet.x += bullet.speed_x
+    #             bullet.y += bullet.speed_y
+    #         else:
+    #             self.missiles.pop(self.missiles.index(bullet))
+    #     if (abs(enemy.x - self.x) < OBJ_SIZE or
+    #             abs(enemy.y - self.y) < OBJ_SIZE):
+    #         traction_x = 0
+    #         traction_y = 0
+    #         if direction == "right":
+    #             traction_x = -1
+    #             traction_y = 0
+    #         elif direction == "left":
+    #             traction_x = 1
+    #             traction_y = 0
+    #         elif direction == "up":
+    #             traction_x = 0
+    #             traction_y = -1
+    #         elif direction == "down":
+    #             traction_x = 0
+    #             traction_y = 1
+    #         missile_e = Missile(self.x, self.y, 2, traction_x, traction_y, OBJ_SIZE)
+    #         if len(self.missiles) < 1:
+    #             self.missiles.append(missile_e)
+
+    def update_position(self, game_display):
+        self.x += self.dx
+        self.y += self.dy
+        self.draw(game_display, pygame.transform.rotate(self.image, self.direction), (self.x, self.y))
+        self.dx = 0
+        self.dy = 0
+
+
 def main_loop():
     # START_SCREEN.stop()
     game_over = False
     pygame.display.set_caption("Battle city")
     main_player = Player(250, 350, 2, 0, load_level())
+    enemy = Enemy(250, 400, 2, 0, load_level(), "hurt")
     while not game_over:
         TIMER.tick(60)
         GAME_DISPLAY.fill((0, 0, 0))
@@ -164,15 +252,18 @@ def main_loop():
             main_player.bullet_operation()
 
         if main_player.missile:
-            if not missile_collision(main_player.missile, X_OR_Y_MAP):
+            if not collision(main_player.missile[0], X_OR_Y_MAP):
                 GAME_DISPLAY.blit(EXPLODE, (main_player.missile[0].x, main_player.missile[0].y))
                 main_player.missile.pop(0)
-        main_player.draw(GAME_DISPLAY, PLAYER_SPRITE)
+        main_player.draw(GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))
+        enemy.make_move(main_player)
+        enemy.update_position(GAME_DISPLAY)
         for elements in main_player.map_game:
             elements.draw(GAME_DISPLAY)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
+
         keys = pygame.key.get_pressed()
         main_player.player_control(keys)
         pygame.display.update()
@@ -196,8 +287,6 @@ class Blocks(GameObject):
             game_display.blit(IRON_FLOOR, (self.x, self.y))
         elif self.block_type == 'WATER':
             game_display.blit(WATER, (self.x, self.y))
-        # elif self.block_type == 'C':
-        #     game_display.blit(WATER, (self.x, self.y))
 
 
 def load_level():
@@ -248,11 +337,11 @@ class Base(GameObject):
             game_display.blit(DESTR_CASTLE, (self.x, self.y))
 
 
-def missile_collision(missile: list, rec_object):
+def collision(some_object, rec_object):
     for elem in rec_object:
-        if elem[0] <= missile[0].x <= elem[0] + OBJ_SIZE \
-                or elem[0] <= missile[0].x + OBJ_SIZE <= elem[0] + OBJ_SIZE:
-            if elem[1] <= missile[0].y <= elem[1] + OBJ_SIZE or elem[1] <= missile[0].y + OBJ_SIZE <= elem[
+        if elem[0] <= some_object.x <= elem[0] + OBJ_SIZE \
+                or elem[0] <= some_object.x + OBJ_SIZE <= elem[0] + OBJ_SIZE:
+            if elem[1] <= some_object.y <= elem[1] + OBJ_SIZE or elem[1] <= some_object.y + OBJ_SIZE <= elem[
                 1] + OBJ_SIZE:
                 return False
     return True

@@ -175,58 +175,26 @@ class Enemy(Tank):
             self.hp = 200
 
     def make_move(self, obj):
-        enemy_rect = pygame.Rect(self.x, self.y - 1, 26, 1)
-        enemy_rect_2 = pygame.Rect(self.x, self.y + 26, 26, 1)
-        enemy_rect_3 = pygame.Rect(self.x + 27, self.y, 1, 26)
-        enemy_rect_4 = pygame.Rect(self.x - 1, self.y, 1, 26)
-        if self.y > obj.y and not enemy_rect.collidelistall(RECT_MAP):
+        enemy_rect = pygame.Rect(self.x+5, self.y - 1, 26, 1)
+        enemy_rect_2 = pygame.Rect(self.x, self.y + 11, 26, 1)
+        enemy_rect_3 = pygame.Rect(self.x+26, self.y, 1, 26)
+        enemy_rect_4 = pygame.Rect(self.x, self.y, 1, 26)
+        if self.y > obj.y and collision(enemy_rect, RECT_MAP):
             self.dy -= self.speed
             self.dx = 0
             self.direction = 0
-        if self.y < obj.y and not enemy_rect_2.collidelistall(RECT_MAP):
+        elif self.y < obj.y and collision(enemy_rect_2, RECT_MAP):
             self.dy += self.speed
             self.dx = 0
             self.direction = 180
-        if self.x > obj.x and not enemy_rect_3.collidelistall(RECT_MAP):
+        if self.x > obj.x and not enemy_rect_4.collidelistall(RECT_MAP):
             self.dx -= self.speed
-
             self.dy = 0
             self.direction = 90
-        if self.x < obj.x and not enemy_rect_4.collidelistall(RECT_MAP):
+        elif self.x < obj.x and not enemy_rect_3.collidelistall(RECT_MAP):
             self.dx += self.speed
             self.dy = 0
             self.direction = 270
-
-    #
-    # def shoot(self, enemy, direction):
-    #     """Updates bullets' positions
-    #     And makes a bullet, if the enemy is nearby
-    #     """
-    #     for bullet in self.missiles:
-    #         if bullet.x > 0 and bullet.y > 0:
-    #             bullet.x += bullet.speed_x
-    #             bullet.y += bullet.speed_y
-    #         else:
-    #             self.missiles.pop(self.missiles.index(bullet))
-    #     if (abs(enemy.x - self.x) < OBJ_SIZE or
-    #             abs(enemy.y - self.y) < OBJ_SIZE):
-    #         traction_x = 0
-    #         traction_y = 0
-    #         if direction == "right":
-    #             traction_x = -1
-    #             traction_y = 0
-    #         elif direction == "left":
-    #             traction_x = 1
-    #             traction_y = 0
-    #         elif direction == "up":
-    #             traction_x = 0
-    #             traction_y = -1
-    #         elif direction == "down":
-    #             traction_x = 0
-    #             traction_y = 1
-    #         missile_e = Missile(self.x, self.y, 2, traction_x, traction_y, OBJ_SIZE)
-    #         if len(self.missiles) < 1:
-    #             self.missiles.append(missile_e)
 
     def update_position(self, game_display):
         self.x += self.dx
@@ -254,6 +222,7 @@ def main_loop():
         if main_player.missile:
             if not collision(main_player.missile[0], X_OR_Y_MAP):
                 GAME_DISPLAY.blit(EXPLODE, (main_player.missile[0].x, main_player.missile[0].y))
+
                 main_player.missile.pop(0)
         main_player.draw(GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))
         enemy.make_move(main_player)

@@ -6,9 +6,8 @@ import math
 import datetime
 import pygame
 import pygame.locals
+import argparse
 from settings import *
-
-X_OR_Y_MAP = []
 
 
 def message_to_screen(msg, color, width, height, font_type, y_displace=0, x_displace=0):
@@ -68,6 +67,7 @@ class GameObject():
         self.x = x
         self.y = y
         self.size = size
+        self.object_rect = pygame.Rect(x, y, OBJ_SIZE, OBJ_SIZE)
 
 
 class Missile(GameObject):
@@ -108,34 +108,35 @@ class Player(Tank):
         self.angle = 0
         self.missile = []
         self.map_game = map_game
+        # self.rect_map = RECT_MAP
 
     def player_control(self, keys):
-        my_rect = pygame.Rect(self.x - 1, self.y, 1, 26)
-        my_rect_2 = pygame.Rect(self.x + 27, self.y, 1, 26)
-        my_rect_3 = pygame.Rect(self.x, self.y - 1, 26, 1)
-        my_rect_4 = pygame.Rect(self.x, self.y + 26, 26, 1)
-        if keys[pygame.K_LEFT] and self.x > 0 and not my_rect.collidelistall(RECT_MAP):
+        my_rect = pygame.Rect(self.x - 3, self.y+11, 1, 26)
+        my_rect_2 = pygame.Rect(self.x+13, self.y+11, 1, 26)
+        my_rect_3 = pygame.Rect(self.x, self.y - 3, 26, 1)
+        my_rect_4 = pygame.Rect(self.x, self.y + 13, 26, 1)
+        if keys[pygame.K_LEFT] and self.x > 0 and tank_collision(my_rect, self.map_game):
             self.x -= self.speed
             self.angle = 90
             self.dx = -1
             self.dy = 0
-        elif keys[pygame.K_RIGHT] and self.x < DISPLAY_WIDTH - 30 and not my_rect_2.collidelistall(RECT_MAP):
+        elif keys[pygame.K_RIGHT] and self.x < DISPLAY_WIDTH - 30 and tank_collision(my_rect_2, self.map_game):
             self.x += self.speed
             self.angle = 270
             self.dx = 1
             self.dy = 0
-        elif keys[pygame.K_UP] and self.y > 0 and not my_rect_3.collidelistall(RECT_MAP):
+        elif keys[pygame.K_UP] and self.y > 0 and tank_collision(my_rect_3, self.map_game):
             self.y -= self.speed
             self.angle = 0
             self.dx = 0
             self.dy = -1
-        elif keys[pygame.K_DOWN] and self.y < DISPLAY_HEIGHT - 30 and not my_rect_4.collidelistall(RECT_MAP):
+        elif keys[pygame.K_DOWN] and self.y < DISPLAY_HEIGHT - 30 and tank_collision(my_rect_4, self.map_game):
             self.y += self.speed
             self.angle = 180
             self.dx = 0
             self.dy = 1
 
-        if keys[pygame.K_SPACE] and len(self.missile) < 2:
+        if keys[pygame.K_SPACE] and len(self.missile) <= 1:
             self.missile.append(Missile(self.x + 4, self.y + 4, self.angle, self.dx, self.dy, OBJ_SIZE))
             FIRE_SOUND.set_volume(10)
             FIRE_SOUND.play()
@@ -162,36 +163,36 @@ class Enemy(Tank):
         self.image = image
         self.hp = hp
         self.direction = None
-        if kind is "casual":
+        if kind == "casual":
             self.image = CASUAL_ENEMY
             self.speed = 5
-        if kind is "fast":
+        if kind == "fast":
             self.image = FAST_ENEMY
             self.speed = 10
             self.hp = 50
-        if kind is "hurt":
+        if kind == "hurt":
             self.image = POPA_BOL_ENEMY
             self.speed = 1
             self.hp = 200
 
     def make_move(self, obj):
-        enemy_rect = pygame.Rect(self.x+5, self.y - 1, 26, 1)
-        enemy_rect_2 = pygame.Rect(self.x, self.y + 11, 26, 1)
-        enemy_rect_3 = pygame.Rect(self.x+26, self.y, 1, 26)
-        enemy_rect_4 = pygame.Rect(self.x, self.y, 1, 26)
-        if self.y > obj.y and collision(enemy_rect, RECT_MAP):
+        enemy_rect = pygame.Rect(self.x, self.y - 3, 26, 26)
+        enemy_rect_2 = pygame.Rect(self.x+13, self.y + 13, 26, 26)
+        enemy_rect_3 = pygame.Rect(self.x, self.y+13, 26, 26)
+        enemy_rect_4 = pygame.Rect(self.x+13, self.y+11, 26, 26)
+        if self.y > obj.y and tank_collision(enemy_rect,self.map_game):
             self.dy -= self.speed
             self.dx = 0
             self.direction = 0
-        elif self.y < obj.y and collision(enemy_rect_2, RECT_MAP):
+        elif self.y < obj.y and tank_collision(enemy_rect_2,self.map_game):
             self.dy += self.speed
             self.dx = 0
             self.direction = 180
-        if self.x > obj.x and not enemy_rect_4.collidelistall(RECT_MAP):
+        if self.x > obj.x and tank_collision(enemy_rect_3,self.map_game):
             self.dx -= self.speed
             self.dy = 0
             self.direction = 90
-        elif self.x < obj.x and not enemy_rect_3.collidelistall(RECT_MAP):
+        elif self.x < obj.x and tank_collision(enemy_rect_4,self.map_game):
             self.dx += self.speed
             self.dy = 0
             self.direction = 270
@@ -210,6 +211,7 @@ def main_loop():
     pygame.display.set_caption("Battle city")
     main_player = Player(250, 350, 2, 0, load_level())
     enemy = Enemy(250, 400, 2, 0, load_level(), "hurt")
+    block = Blocks(3, 2, "BRICK", OBJ_SIZE)
     while not game_over:
         TIMER.tick(60)
         GAME_DISPLAY.fill((0, 0, 0))
@@ -218,12 +220,7 @@ def main_loop():
         for bul in main_player.missile:
             bul.draw(GAME_DISPLAY, MISSILE)
             main_player.bullet_operation()
-
-        if main_player.missile:
-            if not collision(main_player.missile[0], X_OR_Y_MAP):
-                GAME_DISPLAY.blit(EXPLODE, (main_player.missile[0].x, main_player.missile[0].y))
-
-                main_player.missile.pop(0)
+        Missile_collision(main_player)
         main_player.draw(GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))
         enemy.make_move(main_player)
         enemy.update_position(GAME_DISPLAY)
@@ -232,17 +229,28 @@ def main_loop():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
-
         keys = pygame.key.get_pressed()
         main_player.player_control(keys)
         pygame.display.update()
     pygame.quit()
 
 
+def Missile_collision(main_player):
+    if main_player.missile:
+        for block in main_player.map_game:
+            if main_player.missile is not None and not collision(main_player.missile[0], block):
+                GAME_DISPLAY.blit(EXPLODE, (main_player.missile[0].x, main_player.missile[0].y))
+                if block.block_type == 'BRICK':
+                    main_player.map_game.remove(block)
+                main_player.missile.pop(0)
+                break
+
+
 class Blocks(GameObject):
     def __init__(self, x, y, block_type, size):
         GameObject.__init__(self, x, y, size)
         self.block_type = block_type
+
 
     def draw(self, game_display, ):
 
@@ -271,12 +279,8 @@ def load_level():
         for char in row:
             if char == '#':
                 game_map.append(Blocks(x, y, "BRICK", OBJ_SIZE))
-                RECT_MAP.append(pygame.Rect(x, y, OBJ_SIZE, OBJ_SIZE))
-                X_OR_Y_MAP.append((x, y))
             elif char == '@':
                 game_map.append(Blocks(x, y, 'IRON', OBJ_SIZE))
-                RECT_MAP.append(pygame.Rect(x, y, OBJ_SIZE, OBJ_SIZE))
-                X_OR_Y_MAP.append((x, y))
             elif char == '%':
                 game_map.append(Blocks(x, y, 'BUSH', OBJ_SIZE))
             elif char == '~':
@@ -284,7 +288,7 @@ def load_level():
             elif char == '-':
                 game_map.append(Blocks(x, y, 'IRON_FLOOR', OBJ_SIZE))
             elif char == 'C':
-                game_map.append(Base(x, y, OBJ_SIZE * 2, 'alive'))
+                game_map.append(Blocks(x, y, 'B', OBJ_SIZE))
             x += OBJ_SIZE
         x = 0
         y += OBJ_SIZE
@@ -307,14 +311,29 @@ class Base(GameObject):
 
 
 def collision(some_object, rec_object):
+    if rec_object.x <= some_object.x <= rec_object.x + OBJ_SIZE \
+            or rec_object.x <= some_object.x + OBJ_SIZE <= rec_object.x + OBJ_SIZE:
+        if rec_object.y <= some_object.y <= rec_object.y + OBJ_SIZE or rec_object.y <= some_object.y + OBJ_SIZE <= \
+                rec_object.y + OBJ_SIZE:
+            return False
+
+    return True
+
+
+def tank_collision(some_object, rec_object):
     for elem in rec_object:
-        if elem[0] <= some_object.x <= elem[0] + OBJ_SIZE \
-                or elem[0] <= some_object.x + OBJ_SIZE <= elem[0] + OBJ_SIZE:
-            if elem[1] <= some_object.y <= elem[1] + OBJ_SIZE or elem[1] <= some_object.y + OBJ_SIZE <= elem[
-                1] + OBJ_SIZE:
-                return False
+        if elem.block_type != "BUSH":
+            if elem.object_rect.x <= some_object.x <= elem.object_rect.x + OBJ_SIZE \
+                    or elem.object_rect.x <= some_object.x + OBJ_SIZE <= elem.object_rect.x + OBJ_SIZE:
+                if elem.object_rect.y <= some_object.y <= elem.object_rect.y + OBJ_SIZE or elem.object_rect.y <= some_object.y \
+                        + OBJ_SIZE <= elem.object_rect.y + OBJ_SIZE:
+                    return False
+
     return True
 
 
 if __name__ == "__main__":
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--game', action='store_const', const='1', help='This will be option One')
+    # if parser.parse_args().game == '1':
     start_screen()

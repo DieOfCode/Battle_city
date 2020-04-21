@@ -1,17 +1,17 @@
 #!/usr/bin/env python3
-
 import random
 import os
 import math
 import datetime
 import pygame
-import pygame.locals
+import pygame
 import argparse
-from settings import *
-from constant import *
+
 from Tank import *
 from GameObject import *
 import StartScreen
+from settings import *
+from constant import *
 
 
 def main_loop():
@@ -25,14 +25,19 @@ def main_loop():
         GAME_DISPLAY.fill((0, 0, 0))
         BEST_MUSIC.set_volume(0.1)
         # BEST_MUSIC.play()
+        enemy.shoot(main_player, enemy.direction)
         for bul in main_player.missile:
             bul.draw(GAME_DISPLAY, MISSILE)
             main_player.bullet_operation()
+        for bullet in enemy.missile:
+            bullet.draw(GAME_DISPLAY, MISSILE)
+            enemy.bullet_operation()
         Missile.missile_collision(main_player)
+        Missile.missile_collision(enemy)
         main_player.draw(GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))
         enemy.make_move(main_player)
         enemy.update_position(GAME_DISPLAY)
-        for elements in main_player.map_game:
+        for elements in s.MAP:
             elements.draw(GAME_DISPLAY)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -47,4 +52,5 @@ if __name__ == "__main__":
     # parser = argparse.ArgumentParser()
     # parser.add_argument('--game', action='store_const', const='1', help='This will be option One')
     # if parser.parse_args().game == '1':
-    StartScreen.start_screen()
+    screen = StartScreen.Screen()
+    screen.start_screen()

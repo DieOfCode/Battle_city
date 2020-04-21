@@ -1,12 +1,10 @@
 import configparser
 import pygame
 from constant import PLAYER_SPRITE
+import LoadLevel
 
 
 pygame.init()
-
-OBJ_SIZE = 16
-CONST_SPEED = 1
 
 ENEMY_TYPES = ['regular', 'heavy', 'fast']
 
@@ -21,3 +19,4 @@ GAME_DISPLAY = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT),
 pygame.display.set_caption('Battle city')
 pygame.display.set_icon(PLAYER_SPRITE)
 
+MAP = LoadLevel.load_level()

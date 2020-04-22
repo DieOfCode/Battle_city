@@ -41,3 +41,5 @@ DESTR_CASTLE = sprites.subsurface(16 * 2, 15 * 2, 16 * 2, 16 * 2)
 SMALL_FONT = pygame.font.Font("fonts/prstart.ttf", 15)
 FONT = pygame.font.Font("fonts/prstart.ttf", 45)
 BUTTON_FONT = pygame.font.Font("fonts/prstart.ttf", 20)
+
+

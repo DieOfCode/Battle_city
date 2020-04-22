@@ -1,6 +1,7 @@
 import settings as s
 import constant as c
 from GameObject import Missile
+from GameObject import collision as co
 import pygame
 import LoadLevel
 
@@ -14,6 +15,7 @@ class Tank:
         self.dy = dy
         self.size = size
         self.angle = 0
+        self.rect = pygame.Rect(self.x, self.y, 26, 26)
 
     def draw(self, game_display, img, position):
         t = pygame.transform.rotate(img, self.angle)
@@ -36,6 +38,7 @@ class Player(Tank):
         Tank.__init__(self, x, y, speed, size)
         self.angle = 0
         self.missile = []
+        self.life = 3
 
     def player_control(self, keys):
         my_rect = pygame.Rect(self.x, self.y + 1, 26, 26)
@@ -73,14 +76,6 @@ class Player(Tank):
             c.FIRE_SOUND.set_volume(10)
             c.FIRE_SOUND.play()
 
-    def bullet_operation(self):
-        for bullet in self.missile:
-            if 0 < bullet.x < s.DISPLAY_WIDTH and 0 < bullet.y < s.DISPLAY_HEIGHT:
-                bullet.x += bullet.speed_x
-                bullet.y += bullet.speed_y
-            else:
-                self.missile.pop(self.missile.index(bullet))
-
     def collision_with_enemy(self):
         pass
 
@@ -94,6 +89,7 @@ class Enemy(Tank):
         self.image = image
         self.hp = hp
         self.direction = 0
+        self.enemies = []
         if kind == "casual":
             self.image = c.CASUAL_ENEMY
             self.speed = 5
@@ -111,22 +107,22 @@ class Enemy(Tank):
         enemy_rect = pygame.Rect(self.x + 1, enemy_rect_3.topright[1] - 1, 0, 0)
         enemy_rect_2 = pygame.Rect(self.x + 1, enemy_rect_3.bottomright[1] - 24, 0, 0)
         enemy_rect_4 = pygame.Rect(enemy_rect_3.topright[0] - 22, self.y + 1, 0, 0)
-        if self.y > obj.y:
+        if self.y > obj.y and co(enemy_rect, pygame.Rect(obj.x, obj.y, 26, 26)):
             if self.tank_collision_with_wall(enemy_rect, s.MAP):
                 self.direction = 0
                 self.dy -= self.speed
                 self.dx = 0
-        if self.y < obj.y:
+        if self.y < obj.y and co(enemy_rect_2, pygame.Rect(obj.x, obj.y, 26, 26)):
             if self.tank_collision_with_wall(enemy_rect_2, s.MAP):
                 self.direction = 180
                 self.dy += self.speed
                 self.dx = 0
-        if self.x > obj.x:
+        if self.x > obj.x and co(enemy_rect_3, pygame.Rect(obj.x, obj.y, 26, 26)):
             if self.tank_collision_with_wall(enemy_rect_3, s.MAP):
                 self.direction = 90
                 self.dx -= self.speed
                 self.dy = 0
-        if self.x < obj.x:
+        if self.x < obj.x and co(enemy_rect_4, pygame.Rect(obj.x, obj.y, 26, 26)):
             if self.tank_collision_with_wall(enemy_rect_4, s.MAP):
                 self.direction = 270
                 self.dx += self.speed
@@ -166,3 +162,6 @@ class Enemy(Tank):
         self.draw(game_display, pygame.transform.rotate(self.image, self.direction), (self.x, self.y))
         self.dx = 0
         self.dy = 0
+
+    def collision_with_player(self, enemy_rect, player_rect):
+        pass

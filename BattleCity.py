@@ -6,7 +6,7 @@ import datetime
 import pygame
 import pygame
 import argparse
-
+import GameOverScreen
 from Tank import *
 from GameObject import *
 import StartScreen
@@ -18,8 +18,9 @@ def main_loop():
     # START_SCREEN.stop()
     game_over = False
     pygame.display.set_caption("Battle city")
-    main_player = Player(250, 350, 2, 0)
-    enemy = Enemy(250, 400, 2, 0, "hurt")
+    main_player = Player(250, 350, 1, 0)
+    enemy = Enemy(400, 400, 1, 0, "hurt")
+    game_over_screen = GameOverScreen.GameOver()
     while not game_over:
         TIMER.tick(60)
         GAME_DISPLAY.fill((0, 0, 0))
@@ -28,10 +29,13 @@ def main_loop():
         enemy.shoot(main_player, enemy.direction)
         for bul in main_player.missile:
             bul.draw(GAME_DISPLAY, MISSILE)
-            main_player.bullet_operation()
+            Missile.bullet_operation(main_player.missile)
         for bullet in enemy.missile:
             bullet.draw(GAME_DISPLAY, MISSILE)
-            enemy.bullet_operation()
+            Missile.bullet_operation(enemy.missile)
+            if not Missile.collision_with_player(enemy.missile,
+                                                 pygame.Rect(main_player.x, main_player.y, OBJ_SIZE, OBJ_SIZE)):
+                game_over_screen.game_over_screen()
         Missile.missile_collision(main_player)
         Missile.missile_collision(enemy)
         main_player.draw(GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))

@@ -30,12 +30,27 @@ class Missile(GameObject):
     def missile_collision(tank):
         if tank.missile:
             for block in s.MAP:
-                if tank.missile is not None and not collision(tank.missile[0], block) and block.block_type is not "BUSH":
+                if tank.missile is not None and not collision(tank.missile[0],
+                                                              block) and block.block_type is not "BUSH":
                     s.GAME_DISPLAY.blit(c.EXPLODE, (tank.missile[0].x, tank.missile[0].y))
                     if block.block_type == 'BRICK':
                         s.MAP.remove(block)
                     tank.missile.pop(0)
                     break
+
+    @staticmethod
+    def bullet_operation(missiles):
+        for bullet in missiles:
+            if 0 < bullet.x < s.DISPLAY_WIDTH and 0 < bullet.y < s.DISPLAY_HEIGHT:
+                bullet.x += bullet.speed_x
+                bullet.y += bullet.speed_y
+            else:
+                missiles.pop(missiles.index(bullet))
+
+    @staticmethod
+    def collision_with_player(missiles, my_obj):
+        for mis in missiles:
+            return collision(mis, my_obj)
 
 
 class Base(GameObject):

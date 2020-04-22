@@ -10,9 +10,12 @@ from constant import *
 from Tank import *
 from GameObject import *
 
+LEVEL =1
+
 
 def load_level():
-    filename = 'levels/' + '1'
+    global LEVEL
+    filename = 'levels/' + str(LEVEL)
     if not os.path.isfile(filename):
         raise AssertionError()
     game_map = []

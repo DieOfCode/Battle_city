@@ -1,6 +1,8 @@
 import settings as s
 import constant as c
 import pygame.locals
+import LoadLevel
+import Tank
 
 
 class GameObject:
@@ -12,7 +14,7 @@ class GameObject:
 
 
 class Missile(GameObject):
-    def __init__(self, x, y, angle, direction_x, direction_y, size, damage=50):
+    def __init__(self, x, y, angle, direction_x, direction_y, size, damage=1):
         GameObject.__init__(self, x, y, size)
         self.direction_x = direction_x
         self.direction_y = direction_y
@@ -27,21 +29,25 @@ class Missile(GameObject):
         game_display.blit(missile, (self.x, self.y))
 
     @staticmethod
-    def missile_collision(tank):
+    def missile_collision(tank, level_map):
+
         if tank.missile:
-            for block in s.MAP:
+            for block in level_map:
                 if tank.missile is not None and not collision(tank.missile[0],
                                                               block) and block.block_type is not "BUSH":
                     s.GAME_DISPLAY.blit(c.EXPLODE, (tank.missile[0].x, tank.missile[0].y))
                     if block.block_type == 'BRICK':
-                        s.MAP.remove(block)
+                        level_map.remove(block)
+                    if block.block_type == 'B':
+                        level_map.remove(block)
+                        return True
                     tank.missile.pop(0)
                     break
 
     @staticmethod
     def bullet_operation(missiles):
         for bullet in missiles:
-            if 0 < bullet.x < s.DISPLAY_WIDTH and 0 < bullet.y < s.DISPLAY_HEIGHT:
+            if 0 < bullet.x < s.GAME_DISP_WIDTH and 0 < bullet.y < s.DISPLAY_HEIGHT:
                 bullet.x += bullet.speed_x
                 bullet.y += bullet.speed_y
             else:
@@ -50,28 +56,18 @@ class Missile(GameObject):
     @staticmethod
     def collision_with_player(missiles, my_obj):
         for mis in missiles:
-            return collision(mis, my_obj)
-
-
-class Base(GameObject):
-    def __init__(self, x, y, size, state, hp=100):
-        GameObject.__init__(self, x, y, size)
-        self.state = state
-        self.kind = 'castle'
-        self.hp = hp
-
-    def draw(self, game_display):
-
-        if self.state == 'alive':
-            game_display.blit(c.CASTLE_IMG, (self.x, self.y))
-        if self.state == 'destroyed':
-            game_display.blit(c.DESTR_CASTLE, (self.x, self.y))
+            if my_obj.x < mis.x < my_obj.x + c.OBJ_SIZE \
+                    and my_obj.y < mis.y < my_obj.y + c.OBJ_SIZE:
+                missiles.remove(mis)
+                return True
+            return False
 
 
 class Blocks(GameObject):
-    def __init__(self, x, y, block_type, size):
+    def __init__(self, x, y, block_type, size, can_move):
         GameObject.__init__(self, x, y, size)
         self.block_type = block_type
+        self.can_move = can_move
 
     def draw(self, game_display, ):
 
@@ -95,5 +91,4 @@ def collision(some_object, rec_object):
         if rec_object.y <= some_object.y <= rec_object.y + c.OBJ_SIZE or rec_object.y <= some_object.y + c.OBJ_SIZE <= \
                 rec_object.y + c.OBJ_SIZE:
             return False
-
     return True

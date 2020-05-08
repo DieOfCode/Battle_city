@@ -119,7 +119,7 @@ class Enemy(Tank):
 
         if kind == "casual":
             self.image = c.CASUAL_ENEMY
-            self.speed = 1.5
+            self.speed = 0.1
         if kind == "fast":
             self.image = c.FAST_ENEMY
             self.speed = 3

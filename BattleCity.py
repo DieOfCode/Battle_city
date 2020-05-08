@@ -34,7 +34,7 @@ class MainFunc:
         # START_SCREEN.stop()
 
         pygame.display.set_caption("Battle city")
-        main_player = Player(250, 350, 1, enemies=self.enemy_in_game, count_of_enemies=self.count_of_enemy)
+        main_player = Player(145, 375, 1, enemies=self.enemy_in_game, count_of_enemies=self.count_of_enemy)
         main_screen = Screen.Screen()
 
         while not self.is_game_over:
@@ -53,7 +53,7 @@ class MainFunc:
             for elements in self.level_map:
                 elements.draw(s.GAME_DISPLAY)
             if not self.enemy_in_game and not self.current_level and main_player.life != 0:
-                main_screen.next_level_screen(main_player, self.level)
+                main_screen.next_level_screen(main_player, self.level,self.game_score)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.is_game_over = True

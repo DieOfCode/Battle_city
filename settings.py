@@ -20,13 +20,13 @@ GAME_DISPLAY = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT),
 pygame.display.set_caption('Battle city')
 pygame.display.set_icon(PLAYER_SPRITE)
 
-
 # BULLETS = []
 
 LEVELS_ENEM = {
-    1: ["casual"],
-    2: ["hurt", "casual", "casual", "casual", "hurt", "casual", "casual", "casual", "hurt", "casual",
-        "casual"]}
+    1: ["casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual",
+        "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual"],
+    2: ["hurt"], 3: ["hurt"]
+}
 ENEMY_IN_LEVEL = len(LEVELS_ENEM[1])
 
 #

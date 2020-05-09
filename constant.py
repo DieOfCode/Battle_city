@@ -38,6 +38,11 @@ WATER = sprites.subsurface(64 * 2, 64 * 2, 8 * 2, 8 * 2)
 CASTLE_IMG = sprites.subsurface(0, 15 * 2, 16 * 2, 16 * 2)
 DESTR_CASTLE = sprites.subsurface(16 * 2, 15 * 2, 16 * 2, 16 * 2)
 
+
+ENEMY_LIFE = sprites.subsurface(81 * 2, 57 * 2, 7 * 2, 7 * 2)
+PLAYER_LIFE = sprites.subsurface(89 * 2, 56 * 2, 7 * 2, 8 * 2)
+FLAG = sprites.subsurface(64 * 2, 49 * 2, 16 * 2, 15 * 2)
+
 SMALL_FONT = pygame.font.Font("fonts/prstart.ttf", 15)
 FONT = pygame.font.Font("fonts/prstart.ttf", 45)
 BUTTON_FONT = pygame.font.Font("fonts/prstart.ttf", 20)

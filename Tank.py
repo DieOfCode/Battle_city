@@ -3,7 +3,7 @@ import constant as c
 import random
 import GameObject as go
 from GameObject import Missile
-from GameObject import collision as co
+from GameObject import with_player_collision as co
 from collections import Counter
 import pygame
 import LoadLevel
@@ -18,11 +18,11 @@ class Tank:
         self.dy = -1.0
         self.size = size
         self.angle = 0
-        self.rect = pygame.Rect(self.x, self.y, 26, 26)
+        self.rect = pygame.rect.Rect(self.x, self.y, c.OBJ_SIZE, c.OBJ_SIZE)
 
     def draw(self, game_display, img, position):
-        t = pygame.transform.rotate(img, self.angle)
-        game_display.blit(t, position)
+        rotate_image = pygame.transform.rotate(img, self.angle)
+        game_display.blit(rotate_image, position)
 
     def tank_collision_with_wall(self, some_object, rec_object):
         for elem in rec_object:
@@ -32,14 +32,7 @@ class Tank:
                     if elem.object_rect.y <= some_object.y <= elem.object_rect.y + c.OBJ_SIZE or elem.object_rect.y <= some_object.y \
                             + 25 <= elem.object_rect.y + c.OBJ_SIZE:
                         return False
-
         return True
-
-    def inside_boundaries(self):
-        """Checks if the object inside game boundaries"""
-        return self.x + self.dx > 0 \
-               and self.x < s.GAME_DISP_WIDTH \
-               and 0 < self.y < s.DISPLAY_HEIGHT - 20
 
 
 class Player(Tank):
@@ -52,45 +45,55 @@ class Player(Tank):
         self.count_of_enemies = count_of_enemies
         self.kill_enemy = Counter()
         self.score = 0
+        self.enemies_pos = []
 
-    def player_control(self, keys,level_map):
+    def player_control(self, keys, level_map):
         my_rect = pygame.Rect(self.x, self.y + 1, 26, 26)
         my_rect_2 = pygame.Rect(my_rect.topright[0] - 22, self.y + 1, 0, 0)
         my_rect_3 = pygame.Rect(self.x + 1, my_rect.topright[1] - 1, 0, 0)
         my_rect_4 = pygame.Rect(self.x + 1, my_rect.bottomright[1] - 24, 0, 0)
 
-        if keys[pygame.K_LEFT] and self.x > 0:
+        if keys[pygame.K_LEFT] \
+                and self.x > 0:
             self.angle = 90
             self.dx = -1
             self.dy = 0
-            if self.tank_collision_with_wall(my_rect, level_map):
+            if self.tank_collision_with_wall(my_rect, level_map) \
+                    and not self.with_enemy_collision((self.x - self.speed, self.y)):
                 self.x -= self.speed
 
-        elif keys[pygame.K_RIGHT] and self.x < s.GAME_DISP_WIDTH:
+        elif keys[pygame.K_RIGHT] \
+                and self.x < s.GAME_DISP_WIDTH:
             self.angle = 270
             self.dx = 1
             self.dy = 0
-            if self.tank_collision_with_wall(my_rect_2, level_map):
+            if self.tank_collision_with_wall(my_rect_2, level_map) \
+                    and not self.with_enemy_collision(
+                (self.x + self.speed, self.y)):
                 self.x += self.speed
 
-        elif keys[pygame.K_UP] and self.y > 0:
+        elif keys[pygame.K_UP] \
+                and self.y > 0:
             self.angle = 0
             self.dx = 0
             self.dy = -1
-            if self.tank_collision_with_wall(my_rect_3,level_map):
+            if self.tank_collision_with_wall(my_rect_3, level_map) \
+                    and not self.with_enemy_collision((self.x, self.y - self.speed)):
                 self.y -= self.speed
 
-        elif keys[pygame.K_DOWN] and self.y < s.DISPLAY_HEIGHT - 30:
+        elif keys[pygame.K_DOWN] \
+                and self.y < s.DISPLAY_HEIGHT - 30:
             self.angle = 180
             self.dx = 0
             self.dy = 1
-            if self.tank_collision_with_wall(my_rect_4, level_map):
+            if self.tank_collision_with_wall(my_rect_4, level_map) \
+                    and not self.with_enemy_collision((self.x, self.y + self.speed)):
                 self.y += self.speed
 
         if keys[pygame.K_SPACE] and len(self.missile) < 1:
             self.missile.append(Missile(self.x + 4, self.y + 4, self.angle, self.dx, self.dy, c.OBJ_SIZE / 2))
-            c.FIRE_SOUND.set_volume(10)
-            c.FIRE_SOUND.play()
+            # c.FIRE_SOUND.set_volume(10)
+            # c.FIRE_SOUND.play()
 
     def collision_missile_with_enemy(self):
         for elem in self.enemies:
@@ -102,12 +105,19 @@ class Player(Tank):
                     self.enemies.remove(elem)
                     self.count_of_enemies -= 1
 
-    def my_collision(self, rec_object):
-        pass
+    def with_enemy_collision(self, new_position):
+        player_rect = pygame.Rect(new_position[0], new_position[1], 26, 26)
+        bool_l = []
+        for elem in self.enemies:
+            enemy_rect = pygame.Rect(elem.x, elem.y, 26, 26)
+            data = player_rect.colliderect(enemy_rect)
+            bool_l.append(data)
+
+        return 1 in bool_l
 
 
 class Enemy(Tank):
-    def __init__(self, x, y, speed, kind, hp=100, image=None, missile=[]):
+    def __init__(self, x, y, speed, kind, enemies, hp=100, image=None, missile=[]):
         Tank.__init__(self, x, y, speed)
         self.missile = missile
         self.angle = 0
@@ -116,10 +126,11 @@ class Enemy(Tank):
         self.hp = hp
         self.direction = 180
         self.kind = kind
+        self.enemies = enemies
 
         if kind == "casual":
             self.image = c.CASUAL_ENEMY
-            self.speed = 0.1
+            self.speed = 0.8
         if kind == "fast":
             self.image = c.FAST_ENEMY
             self.speed = 3
@@ -129,39 +140,64 @@ class Enemy(Tank):
             self.speed = 2
             self.hp = 200
 
-    def make_move(self, obj,level_map):
+    def make_move(self, player: Player, level_map):
         enemy_rect_3 = pygame.Rect(self.x, self.y + 1, 26, 26)
         enemy_rect = pygame.Rect(self.x + 1, enemy_rect_3.topright[1] - 1, 0, 0)
         enemy_rect_2 = pygame.Rect(self.x + 1, enemy_rect_3.bottomright[1] - 24, 0, 0)
         enemy_rect_4 = pygame.Rect(enemy_rect_3.topright[0] - 22, self.y + 1, 0, 0)
-        if self.direction == 0 and co(enemy_rect, pygame.Rect(obj.x, obj.y, 26, 26)):
-            if self.tank_collision_with_wall(enemy_rect, level_map) and self.y > 0:
+        if self.direction == 0:
+            if self.tank_collision_with_wall(enemy_rect, level_map) \
+                    and self.y > 0 \
+                    and not self.with_other_enemy_collision((self.x, self.y - self.speed)) \
+                    and co((self.x, self.y - self.speed), player):
                 self.direction = 0
                 self.dy -= self.speed
                 self.dx = 0
             else:
                 self.direction = random.choice([180, 90, 270])
-        if self.direction == 180 and co(enemy_rect_2, pygame.Rect(obj.x, obj.y, 26, 26)):
-            if self.tank_collision_with_wall(enemy_rect_2, level_map) and self.y < s.DISPLAY_HEIGHT - 30:
+        if self.direction == 180:
+            if self.tank_collision_with_wall(enemy_rect_2, level_map) \
+                    and self.y < s.DISPLAY_HEIGHT - 30 \
+                    and co((self.x, self.y + self.speed), player) \
+                    and not self.with_other_enemy_collision((self.x, self.y + self.speed)):
                 self.direction = 180
                 self.dy += self.speed
                 self.dx = 0
             else:
                 self.direction = random.choice([0, 90, 270])
-        if self.direction == 90 and co(enemy_rect_3, pygame.Rect(obj.x, obj.y, 26, 26)):
-            if self.tank_collision_with_wall(enemy_rect_3, level_map) and self.x > 0:
+        if self.direction == 90:
+            if self.tank_collision_with_wall(enemy_rect_3, level_map) \
+                    and self.x > 0 \
+                    and not self.with_other_enemy_collision((self.x - self.speed, self.y)) \
+                    and co((self.x - self.speed, self.y), player):
                 self.direction = 90
                 self.dx -= self.speed
                 self.dy = 0
             else:
                 self.direction = random.choice([0, 180, 270])
-        if self.direction == 270 and co(enemy_rect_4, pygame.Rect(obj.x, obj.y, 26, 26)):
-            if self.tank_collision_with_wall(enemy_rect_4, level_map) and self.x < s.GAME_DISP_WIDTH:
+        if self.direction == 270:
+            if self.tank_collision_with_wall(enemy_rect_4, level_map) \
+                    and self.x < s.GAME_DISP_WIDTH \
+                    and not self.with_other_enemy_collision((self.x + self.speed, self.y)) \
+                    and co((self.x + self.speed, self.y), player):
                 self.direction = 270
                 self.dx += self.speed
                 self.dy = 0
             else:
                 self.direction = random.choice([0, 90, 180])
+
+    def with_other_enemy_collision(self, new_position):
+        rec_l = []
+        player_rect = pygame.Rect(self.x, self.y, 26, 26)
+        new_player_rect = pygame.Rect(new_position[0], new_position[1], 26, 26)
+        bool_l = []
+        for elem in self.enemies:
+            rec_l.append(pygame.Rect(elem.x, elem.y, 26, 26))
+        rec_l.remove(player_rect)
+        for elem in rec_l:
+            data = new_player_rect.colliderect(elem)
+            bool_l.append(data)
+        return 1 in bool_l
 
     def shoot(self, direction):
         traction_x = 0

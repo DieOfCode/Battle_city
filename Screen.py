@@ -57,7 +57,7 @@ class Screen:
             start_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
             if self.button_click(start_button):
                 BUTTON_MUSIC.play()
-                game = BattleCity.MainFunc(level=1, level_map=LoadLevel.load_level(1), enemy_in_game=[])
+                game = BattleCity.MainFunc(level=1, level_map=LoadLevel.load_level(1), enemy_in_game=[], game_score=0)
                 game.main_loop()
             pygame.display.update()
             TIMER.tick(FPS)
@@ -66,25 +66,25 @@ class Screen:
         GAME_DISPLAY.fill(BLACK)
         next_level_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
         exit_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 60)
-        self.message_to_screen("Curret score:" + str(get_score(player)), WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                               SMALL_FONT, -150)
         self.message_to_screen("LEVEL ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
         self.message_to_screen("Next Level", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
         self.message_to_screen("COMPLETE ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -55)
         if self.button_click(next_level_button):
-            new_level = BattleCity.MainFunc(level=num_of_level + 1, enemy_in_game=[], game_score=game_score+get_score(player),
+            new_level = BattleCity.MainFunc(level=num_of_level + 1, enemy_in_game=[],
+                                            game_score=game_score + get_score(player),
                                             level_map=LoadLevel.load_level(num_of_level + 1))
             new_level.main_loop()
         if self.button_click(exit_button):
             return True
 
+    def victory_screen(self):
+        GAME_DISPLAY.fill(BLACK)
+        self.message_to_screen("VICTORY ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
+
     def game_over_screen(self):
-
-        GAME_DISPLAY.fill([0, 0, 0])
-
+        GAME_DISPLAY.fill(BLACK)
         self.message_to_screen("game", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
         self.message_to_screen("over", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -50)
-
         self.message_to_screen("Press Enter To Continue", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
         pygame.display.flip()
 

@@ -18,7 +18,7 @@ def get_score(player: Tank.Player):
     final_score = 0
     for key in player.kill_enemy.keys():
         if key == "casual":
-            final_score += player.kill_enemy["casual"] * 500
+            final_score += player.kill_enemy["casual"] * 50
         if key == "fast":
             final_score += player.kill_enemy["fast"] * 100
         if key == "hurt":

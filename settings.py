@@ -23,9 +23,9 @@ pygame.display.set_icon(PLAYER_SPRITE)
 # BULLETS = []
 
 LEVELS_ENEM = {
-    1: ["casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual",
-        "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual"],
-    2: ["hurt"], 3: ["hurt"]
+                  1: ["casual"],
+                  2: ["hurt"],
+                  3: ["hurt"]
 }
 ENEMY_IN_LEVEL = len(LEVELS_ENEM[1])
 

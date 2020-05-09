@@ -42,7 +42,7 @@ def load_level(level):
                 game_map.append(Blocks(x, y, 'IRON_FLOOR', OBJ_SIZE, 0))
                 previous_elem = "-"
             elif char == 'C':
-                game_map.append(Blocks(x, y, 'B', OBJ_SIZE, -1))
+                game_map.append(Blocks(x, y, 'B', 2*OBJ_SIZE, -1))
             elif char == '.' and previous_elem:
                 previous_elem = None
                 resp_position.append((x, y))

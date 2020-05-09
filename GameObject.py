@@ -33,8 +33,9 @@ class Missile(GameObject):
 
         if tank.missile:
             for block in level_map:
-                if tank.missile is not None and not collision(tank.missile[0],
-                                                              block) and block.block_type is not "BUSH":
+                if tank.missile is not None \
+                        and not collision(tank.missile[0], block) \
+                        and block.block_type not in ["BUSH", "WATER"]:
                     s.GAME_DISPLAY.blit(c.EXPLODE, (tank.missile[0].x, tank.missile[0].y))
                     if block.block_type == 'BRICK':
                         level_map.remove(block)
@@ -47,7 +48,7 @@ class Missile(GameObject):
     @staticmethod
     def bullet_operation(missiles):
         for bullet in missiles:
-            if 0 < bullet.x < s.GAME_DISP_WIDTH and 0 < bullet.y < s.DISPLAY_HEIGHT:
+            if 0 < bullet.x < 400 and 0 < bullet.y < s.DISPLAY_HEIGHT:
                 bullet.x += bullet.speed_x
                 bullet.y += bullet.speed_y
             else:
@@ -92,3 +93,8 @@ def collision(some_object, rec_object):
                 rec_object.y + c.OBJ_SIZE:
             return False
     return True
+
+
+def with_player_collision(new_position, player):
+    return not pygame.Rect(new_position[0], new_position[1], 26, 26).colliderect(
+        pygame.Rect(player.x, player.y, 26, 26))

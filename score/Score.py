@@ -1,14 +1,14 @@
 import os
-import Tank
+from tank import Tank
 
 
 def load_score():
-    return 20000 if not os.path.isfile(".highscore") else int(open(".highscore", "r").read())
+    return 20000 if not os.path.isfile("score/.highscore") else int(open("score/.highscore", "r").read())
 
 
 def save_score(highscore):
     try:
-        with open(".highscore","w")as f:
+        with open("score/.highscore", "w")as f:
             f.write(str(highscore))
     except:
         return False

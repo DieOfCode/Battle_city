@@ -15,7 +15,6 @@ GREY = (220, 220, 220)
 OBJ_SIZE = 16
 CONST_SPEED = 1
 
-ENEMY_TYPES = ['regular', 'heavy', 'fast']
 
 BEST_MUSIC = pygame.mixer.Sound('sounds/DOOM.ogg')
 FIRE_SOUND = pygame.mixer.Sound('sounds/fire.ogg')

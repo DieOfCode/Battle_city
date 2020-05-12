@@ -1,10 +1,11 @@
 import pygame.locals
-from settings import *
-from constant import *
-from Tank import *
-from GameObject import *
-import BattleCity
-from Score import *
+
+from constant_and_setting.settings import *
+from constant_and_setting.constant import *
+from tank.Tank import *
+from game_object.GameObject import *
+from main_processes import BattleCity, LoadLevel
+from score.Score import *
 
 
 class Screen:
@@ -36,7 +37,7 @@ class Screen:
     def start_screen(self):
         beginning = True
         while beginning:
-            # START_SCREEN.play()
+            START_SCREEN.play()
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:
@@ -64,6 +65,8 @@ class Screen:
 
     def next_level_screen(self, player: Player, num_of_level, game_score):
         GAME_DISPLAY.fill(BLACK)
+        self.message_to_screen("Current score: " + str(game_score + get_score(player)), WHITE, DISPLAY_WIDTH,
+                               DISPLAY_HEIGHT, SMALL_FONT, -150)
         next_level_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
         exit_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 60)
         self.message_to_screen("LEVEL ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
@@ -80,16 +83,22 @@ class Screen:
     def victory_screen(self):
         GAME_DISPLAY.fill(BLACK)
         self.message_to_screen("VICTORY ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
+        self.message_to_screen("Press Esc To Exit", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
+        while 1:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    quit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        self.start_screen()
 
     def game_over_screen(self):
         GAME_DISPLAY.fill(BLACK)
-        self.message_to_screen("game", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
-        self.message_to_screen("over", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -50)
+        self.message_to_screen("Game", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
+        self.message_to_screen("Over", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -50)
         self.message_to_screen("Press Enter To Continue", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
         pygame.display.flip()
-
         while 1:
-
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     quit()
@@ -98,7 +107,7 @@ class Screen:
                         self.start_screen()
 
     @staticmethod
-    def draw_sidebar(player: Player, enemy_in_level):
+    def draw_sidebar(player: Player, enemy_in_level, current_level):
 
         x = 416
         y = 0
@@ -119,4 +128,4 @@ class Screen:
         GAME_DISPLAY.blit(PLAYER_LIFE, [x + 17, y + 215])
 
         GAME_DISPLAY.blit(FLAG, [x + 17, y + 280])
-        GAME_DISPLAY.blit(BUTTON_FONT.render(str(LEVEL), False, BLACK), [x + 64, y + 285])
+        GAME_DISPLAY.blit(BUTTON_FONT.render(str(current_level), False, BLACK), [x + 64, y + 285])

@@ -1,12 +1,9 @@
-import settings as s
-import constant as c
+from constant_and_setting import constant as c, settings as s
 import random
-import GameObject as go
-from GameObject import Missile
-from GameObject import with_player_collision as co
+from game_object.GameObject import Missile
+from game_object.GameObject import with_player_collision as co
 from collections import Counter
 import pygame
-import LoadLevel
 
 
 class Tank:
@@ -92,8 +89,8 @@ class Player(Tank):
 
         if keys[pygame.K_SPACE] and len(self.missile) < 1:
             self.missile.append(Missile(self.x + 4, self.y + 4, self.angle, self.dx, self.dy, c.OBJ_SIZE / 2))
-            # c.FIRE_SOUND.set_volume(10)
-            # c.FIRE_SOUND.play()
+            c.FIRE_SOUND.set_volume(10)
+            c.FIRE_SOUND.play()
 
     def collision_missile_with_enemy(self):
         for elem in self.enemies:
@@ -112,12 +109,11 @@ class Player(Tank):
             enemy_rect = pygame.Rect(elem.x, elem.y, 26, 26)
             data = player_rect.colliderect(enemy_rect)
             bool_l.append(data)
-
         return 1 in bool_l
 
 
 class Enemy(Tank):
-    def __init__(self, x, y, speed, kind, enemies, hp=100, image=None, missile=[]):
+    def __init__(self, x: object, y: object, speed: object, kind: object, enemies: object, hp: object = 100, image: object = None, missile: object = []) -> object:
         Tank.__init__(self, x, y, speed)
         self.missile = missile
         self.angle = 0
@@ -217,14 +213,6 @@ class Enemy(Tank):
         missile_e = Missile(self.x + 4, self.y + 4, direction, traction_x, traction_y, c.OBJ_SIZE / 2)
         if len(self.missile) < 1:
             self.missile.append(missile_e)
-
-    def bullet_operation(self):
-        for bullet in self.missile:
-            if 0 < bullet.x < s.GAME_DISP_WIDTH and 0 < bullet.y < 416:
-                bullet.x += bullet.speed_x
-                bullet.y += bullet.speed_y
-            else:
-                self.missile.pop(self.missile.index(bullet))
 
     def update_position(self, game_display):
         self.x += self.dx

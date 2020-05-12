@@ -1,8 +1,5 @@
-import settings as s
-import constant as c
+from constant_and_setting import constant as c, settings as s
 import pygame.locals
-import LoadLevel
-import Tank
 
 
 class GameObject:
@@ -65,12 +62,11 @@ class Missile(GameObject):
 
 
 class Blocks(GameObject):
-    def __init__(self, x, y, block_type, size, can_move):
+    def __init__(self, x, y, block_type, size):
         GameObject.__init__(self, x, y, size)
         self.block_type = block_type
-        self.can_move = can_move
 
-    def draw(self, game_display, ):
+    def draw(self, game_display):
 
         if self.block_type == 'IRON':
             game_display.blit(c.IRON_BRICK, (self.x, self.y))

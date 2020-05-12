@@ -6,17 +6,19 @@ My version of the game battle city
 
 > https://github.com/DieOfCode
 
+Install
+------------
+
+    pip install -r requirements.txt
+
+Start
+------------
+    python main.py -G
+    python main.py --game
+
 Main menu
 ------------
-
 The control is carried out with the mouse.
-
-
-REQUIREMENTS
-------------
-
-Necessary extensions to run the game
-
 
 Game
 -----------
@@ -36,8 +38,4 @@ Levels consist of several types of blocks:
 
 Management is carried out by arrows.To fire, press the SPACE.
 
-
-WHAT'S NEXT
------------
-Implement the drawing of more levels, as well as the appearance of bonuses and interaction with them
 

@@ -1,15 +1,10 @@
-import random
-import os
-import math
-import datetime
-
-import copy
-from Tank import *
-from GameObject import *
-import Screen
-import settings as s
-from constant import *
-import Score
+from main_processes import LoadLevel
+from tank.Tank import *
+from game_object.GameObject import *
+from screen import Screen
+from constant_and_setting import settings as s
+from constant_and_setting.constant import *
+from score import Score
 
 
 class MainFunc:
@@ -29,7 +24,7 @@ class MainFunc:
         self.using_position = []
 
     def main_loop(self):
-        # START_SCREEN.stop()
+        START_SCREEN.stop()
 
         pygame.display.set_caption("Battle city")
         main_player = Player(145, 375, 1, enemies=self.enemy_in_game, count_of_enemies=self.count_of_enemy)
@@ -38,9 +33,7 @@ class MainFunc:
         while not self.is_game_over:
             s.TIMER.tick(60)
             s.GAME_DISPLAY.fill((0, 0, 0))
-            # BEST_MUSIC.set_volume(0.1)
-            # BEST_MUSIC.play()
-            main_screen.draw_sidebar(main_player, main_player.count_of_enemies)
+            main_screen.draw_sidebar(main_player, main_player.count_of_enemies, self.level)
 
             main_player.collision_missile_with_enemy()
             main_player.draw(s.GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))
@@ -78,14 +71,13 @@ class MainFunc:
                                                  pygame.Rect(player.x, player.y, OBJ_SIZE, OBJ_SIZE)):
                     player.life -= 1
                 if self.game_over_func(player, elem):
-                    self.end_game_action(player)
+                    self.end_game_action()
             elem.make_move(player, level_map=self.level_map)
             elem.update_position(s.GAME_DISPLAY)
 
-    def end_game_action(self, player):
+    def end_game_action(self):
         self.level_map = LoadLevel.load_level(1)
         s.ENEMY_IN_LEVEL = len(s.LEVELS_ENEM[1])
-        self.game_score = Score.get_score(player)
         if self.best_score < self.game_score:
             Score.save_score(self.game_score)
         self.game_over.game_over_screen()

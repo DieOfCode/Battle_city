@@ -101,6 +101,7 @@ class Player(Tank):
                     self.kill_enemy[elem.kind] += 1
                     self.enemies.remove(elem)
                     self.count_of_enemies -= 1
+                    return True
 
     def with_enemy_collision(self, new_position):
         player_rect = pygame.Rect(new_position[0], new_position[1], 26, 26)
@@ -119,7 +120,6 @@ class Enemy(Tank):
         self.angle = 0
         self.missile = []
         self.image = image
-        self.hp = hp
         self.direction = 180
         self.kind = kind
         self.enemies = enemies
@@ -130,11 +130,9 @@ class Enemy(Tank):
         if kind == "fast":
             self.image = c.FAST_ENEMY
             self.speed = 3
-            self.hp = 50
         if kind == "hurt":
             self.image = c.POPA_BOL_ENEMY
             self.speed = 2
-            self.hp = 200
 
     def make_move(self, player: Player, level_map):
         enemy_rect_3 = pygame.Rect(self.x, self.y + 1, 26, 26)

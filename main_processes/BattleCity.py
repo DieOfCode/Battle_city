@@ -34,7 +34,6 @@ class MainFunc:
             s.TIMER.tick(60)
             s.GAME_DISPLAY.fill((0, 0, 0))
             main_screen.draw_sidebar(main_player, main_player.count_of_enemies, self.level)
-
             main_player.collision_missile_with_enemy()
             main_player.draw(s.GAME_DISPLAY, PLAYER_SPRITE, (main_player.x, main_player.y))
             self.respawn(main_player)
@@ -59,7 +58,6 @@ class MainFunc:
         pygame.quit()
 
     def respawn(self, player: Player):
-
         tank_type = random.choice(self.current_level) if self.current_level else None
         self.create_tank(tank_type)
         for elem in self.enemy_in_game:

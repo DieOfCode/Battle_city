@@ -11,6 +11,7 @@ class Test(unittest.TestCase):
     def setUp(self):
         self.test_main = BattleCity.MainFunc(game_score=0, level_map=LoadLevel.load_level("test_level"),
                                              enemy_in_game=[], level=1.5)
+        self.test_player = Player(145, 375, 1, enemies=[], count_of_enemies=[])
 
     def test_load_level_and_resp_position(self):
         test_resp_map = LoadLevel.RESP_POSITION
@@ -21,3 +22,11 @@ class Test(unittest.TestCase):
         tank_type = random.choice(self.test_main.current_level) if self.test_main.current_level else None
         self.test_main.create_tank(tank_type)
         self.assertTrue(self.test_main.enemy_in_game[0].kind == "casual")
+
+    def test_respawn(self):
+        try:
+            self.test_main.respawn(self.test_player)
+            self.assertTrue(True)
+        except Exception:
+            self.assertTrue(False)
+

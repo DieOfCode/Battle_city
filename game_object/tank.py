@@ -2,7 +2,6 @@ from constant import constant
 import settings
 import random
 from game_object.game_object import Missile, Bomb
-from game_object.game_object import collision
 from collections import Counter
 import pygame
 

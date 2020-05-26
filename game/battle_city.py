@@ -36,7 +36,6 @@ class Game:
         self.all_target_for_art = []
 
     def main_loop(self):
-        # START_SCREEN.stop()
         pygame.display.set_caption("Battle city")
         main_player = Player(145, 375, enemies=self.enemy_in_game, count_of_enemies=self.count_of_enemy,
                              level_map=self.level_map, bonus_on_level=self.bonus_in_game)

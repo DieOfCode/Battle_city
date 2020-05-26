@@ -1,11 +1,10 @@
 import pygame.locals
 
-from constant_and_setting.settings import *
-from constant_and_setting.constant import *
-from tank.Tank import *
-from game_object.GameObject import *
-from main_processes import BattleCity, LoadLevel
-from score.Score import *
+from settings import *
+from constant.constant import *
+from game_object.tank import Player
+from game import battle_city
+from game.score import *
 
 
 class Screen:
@@ -37,7 +36,7 @@ class Screen:
     def start_screen(self):
         beginning = True
         while beginning:
-            START_SCREEN.play()
+            # START_SCREEN.play()
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:
@@ -58,7 +57,8 @@ class Screen:
             start_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
             if self.button_click(start_button):
                 BUTTON_MUSIC.play()
-                game = BattleCity.MainFunc(level=1, level_map=LoadLevel.load_level(1), enemy_in_game=[], game_score=0)
+                game = battle_city.Game(level=1, enemy_in_game=[],
+                                        game_score=0)
                 game.main_loop()
             pygame.display.update()
             TIMER.tick(FPS)
@@ -73,9 +73,8 @@ class Screen:
         self.message_to_screen("Next Level", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
         self.message_to_screen("COMPLETE ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -55)
         if self.button_click(next_level_button):
-            new_level = BattleCity.MainFunc(level=num_of_level + 1, enemy_in_game=[],
-                                            game_score=game_score + get_score(player),
-                                            level_map=LoadLevel.load_level(num_of_level + 1))
+            new_level = battle_city.Game(level=num_of_level + 1, enemy_in_game=[],
+                                         game_score=game_score + get_score(player))
             new_level.main_loop()
         if self.button_click(exit_button):
             return True
@@ -94,7 +93,7 @@ class Screen:
 
     def game_over_screen(self):
         GAME_DISPLAY.fill(BLACK)
-        self.message_to_screen("Game", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
+        self.message_to_screen("game", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
         self.message_to_screen("Over", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -50)
         self.message_to_screen("Press Enter To Continue", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
         pygame.display.flip()
@@ -123,8 +122,7 @@ class Screen:
                 y_pos += 17
             else:
                 x_pos += 17
-
-        GAME_DISPLAY.blit(SMALL_FONT.render(str(player.life), False, BLACK), [x + 35, y + 215])
+        GAME_DISPLAY.blit(SMALL_FONT.render(str(int(player.hp / 50)), False, BLACK), [x + 35, y + 215])
         GAME_DISPLAY.blit(PLAYER_LIFE, [x + 17, y + 215])
 
         GAME_DISPLAY.blit(FLAG, [x + 17, y + 280])

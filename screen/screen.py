@@ -1,10 +1,9 @@
 import pygame.locals
-
-from settings import *
-from constant.constant import *
+from settings import GAME_DISPLAY, DISPLAY_HEIGHT, DISPLAY_WIDTH, TIMER, FPS
+from constant import constant
 from game_object.tank import Player
 from game import battle_city
-from game.score import *
+from game.score import load_score, get_score
 
 
 class Screen:
@@ -36,7 +35,6 @@ class Screen:
     def start_screen(self):
         beginning = True
         while beginning:
-            # START_SCREEN.play()
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_c:
@@ -47,16 +45,16 @@ class Screen:
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     quit()
-            GAME_DISPLAY.fill(BLACK)
-            self.message_to_screen("High score:" + str(load_score()), WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT,
-                                   SMALL_FONT, -150)
-            self.message_to_screen("BATTLE CITY", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
-            self.message_to_screen("It`s awful and i know it", WHITE,
-                                   DISPLAY_WIDTH, DISPLAY_HEIGHT, SMALL_FONT, -40)
-            self.message_to_screen("Start", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
+            GAME_DISPLAY.fill(constant.BLACK)
+            self.message_to_screen("High score:" + str(load_score()), constant.WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                                   constant.SMALL_FONT, -150)
+            self.message_to_screen("BATTLE CITY", constant.RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.FONT, -100)
+            self.message_to_screen("It`s awful and i know it", constant.WHITE,
+                                   DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.SMALL_FONT, -40)
+            self.message_to_screen("Start", constant.WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.BUTTON_FONT, 20)
             start_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
             if self.button_click(start_button):
-                BUTTON_MUSIC.play()
+                constant.BUTTON_MUSIC.play()
                 game = battle_city.Game(level=1, enemy_in_game=[],
                                         game_score=0)
                 game.main_loop()
@@ -64,14 +62,14 @@ class Screen:
             TIMER.tick(FPS)
 
     def next_level_screen(self, player: Player, num_of_level, game_score):
-        GAME_DISPLAY.fill(BLACK)
-        self.message_to_screen("Current score: " + str(game_score + get_score(player)), WHITE, DISPLAY_WIDTH,
-                               DISPLAY_HEIGHT, SMALL_FONT, -150)
+        GAME_DISPLAY.fill(constant.BLACK)
+        self.message_to_screen("Current score: " + str(game_score + get_score(player)), constant.WHITE, DISPLAY_WIDTH,
+                               DISPLAY_HEIGHT, constant.SMALL_FONT, -150)
         next_level_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 40)
         exit_button = self.create_menu_button(DISPLAY_WIDTH - 110, DISPLAY_HEIGHT - 60)
-        self.message_to_screen("LEVEL ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
-        self.message_to_screen("Next Level", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
-        self.message_to_screen("COMPLETE ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -55)
+        self.message_to_screen("LEVEL ", constant.RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.FONT, -100)
+        self.message_to_screen("Next Level", constant.WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.BUTTON_FONT, 20)
+        self.message_to_screen("COMPLETE ", constant.RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.FONT, -55)
         if self.button_click(next_level_button):
             new_level = battle_city.Game(level=num_of_level + 1, enemy_in_game=[],
                                          game_score=game_score + get_score(player))
@@ -80,9 +78,10 @@ class Screen:
             return True
 
     def victory_screen(self):
-        GAME_DISPLAY.fill(BLACK)
-        self.message_to_screen("VICTORY ", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
-        self.message_to_screen("Press Esc To Exit", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
+        GAME_DISPLAY.fill(constant.BLACK)
+        self.message_to_screen("VICTORY ", constant.RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.FONT, -100)
+        self.message_to_screen("Press Esc To Exit", constant.WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.BUTTON_FONT,
+                               20)
         while 1:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -92,10 +91,11 @@ class Screen:
                         self.start_screen()
 
     def game_over_screen(self):
-        GAME_DISPLAY.fill(BLACK)
-        self.message_to_screen("game", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -100)
-        self.message_to_screen("Over", RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, FONT, -50)
-        self.message_to_screen("Press Enter To Continue", WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT, BUTTON_FONT, 20)
+        GAME_DISPLAY.fill(constant.BLACK)
+        self.message_to_screen("game", constant.RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.FONT, -100)
+        self.message_to_screen("Over", constant.RED, DISPLAY_WIDTH, DISPLAY_HEIGHT, constant.FONT, -50)
+        self.message_to_screen("Press Enter To Continue", constant.WHITE, DISPLAY_WIDTH, DISPLAY_HEIGHT,
+                               constant.BUTTON_FONT, 20)
         pygame.display.flip()
         while 1:
             for event in pygame.event.get():
@@ -116,14 +116,15 @@ class Screen:
         y_pos = y + 16
 
         for n in range(enemy_in_level):
-            GAME_DISPLAY.blit(ENEMY_LIFE, [x_pos, y_pos])
+            GAME_DISPLAY.blit(constant.ENEMY_LIFE, [x_pos, y_pos])
             if n % 2 == 1:
                 x_pos = x + 16
                 y_pos += 17
             else:
                 x_pos += 17
-        GAME_DISPLAY.blit(SMALL_FONT.render(str(int(player.hp / 50)), False, BLACK), [x + 35, y + 215])
-        GAME_DISPLAY.blit(PLAYER_LIFE, [x + 17, y + 215])
+        GAME_DISPLAY.blit(constant.SMALL_FONT.render(str(int(player.hp / 50)), False, constant.BLACK),
+                          [x + 35, y + 215])
+        GAME_DISPLAY.blit(constant.PLAYER_LIFE, [x + 17, y + 215])
 
-        GAME_DISPLAY.blit(FLAG, [x + 17, y + 280])
-        GAME_DISPLAY.blit(BUTTON_FONT.render(str(current_level), False, BLACK), [x + 64, y + 285])
+        GAME_DISPLAY.blit(constant.FLAG, [x + 17, y + 280])
+        GAME_DISPLAY.blit(constant.BUTTON_FONT.render(str(current_level), False, constant.BLACK), [x + 64, y + 285])

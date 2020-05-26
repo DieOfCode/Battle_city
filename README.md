@@ -27,15 +27,24 @@ The game has several types of opponents:
 
     Casual tank
     Fast tank
-    POPA BOL tank 
+    Hurt tank 
+    Artillery
     
 Levels consist of several types of blocks:
     
     Water       Iron floor
     Brick       Bush
     Iron
+    
+    
+Levels consist of several types of bonus:
+
+    Life 
+    Damage
+    Speed
                 
 
 Management is carried out by arrows.To fire, press the SPACE.
+Player can create bomb.To create bomb press Z
 
 

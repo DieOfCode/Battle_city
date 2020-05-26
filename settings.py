@@ -17,8 +17,6 @@ GAME_DISPLAY = pygame.display.set_mode((DISPLAY_WIDTH, DISPLAY_HEIGHT),
 pygame.display.set_caption('Battle city')
 pygame.display.set_icon(PLAYER_SPRITE)
 
-# BULLETS = []
-
 LEVELS_ENEM = {
     1: ["casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual", "casual"],
     1.5: ["casual"],
@@ -34,5 +32,5 @@ LEVEL_BONUS = {
     1.5: [],
     2: ["LIFE", "LIFE", "DAMAGE", "SPEED"],
     3: ["LIFE", "LIFE", "DAMAGE", "SPEED"],
-    4:["LIFE", "LIFE", "DAMAGE", "SPEED"]
+    4: ["LIFE", "LIFE", "DAMAGE", "SPEED"]
 }
